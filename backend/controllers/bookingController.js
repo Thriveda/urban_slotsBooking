@@ -36,16 +36,6 @@ export const confirmBooking = async (req, res) => {
       status: "confirmed"
     });
 
-    
-    const populatedBooking = await Booking.findById(booking._id)
-      .populate("userId", "name email phone address")
-      .populate("providerId", "name service")
-      .populate("slotId");
-
-    return res.status(201).json({
-      message: "Booking confirmed successfully",
-      booking: populatedBooking,
-    });
   } catch (error) {
     if (error.code === 11000) {
       // duplicate key error (slot already booked by another user)
@@ -59,14 +49,14 @@ export const confirmBooking = async (req, res) => {
 
 
 
-export const getBookingById = async (req, res) => {
+export const getBookedSlots = async (req, res) => {
   try {
-    const { bookingId } = req.params;
+    const { providerId } = req.params;
 
-    const booking = await Booking.findById(bookingId)
-      .populate("userId", "name email phone address")
-      .populate("providerId", "name service")
-      .populate("slotId");
+    const booking = await Booking.find({providerId})
+      .populate("userId")
+      .populate("providerId", "name category")
+      .populate("slotId", "startTime");
 
     if (!booking) {
       return res.status(404).json({ message: "Booking not found" });
@@ -87,10 +77,8 @@ export const cancelBooking = async (req, res) => {
     const booking = await Booking.findById(bookingId);
     if (!booking) return res.status(404).json({ error: "Booking not found" });
 
-    // free up slot
     await SlotModel.findByIdAndUpdate(booking.slotId, { isBooked: false });
 
-    // update booking status
     booking.status = "cancelled";
     await booking.save();
 

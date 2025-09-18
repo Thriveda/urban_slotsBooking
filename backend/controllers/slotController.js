@@ -11,13 +11,13 @@ export const createSlot = async (req, res) => {
       endTime
     });
 
-    if (check && check.status === "booked") {
-      return res.status(400).json({ message: "Slot already booked" });
+    if (check && check.status === "hold") {
+      return res.status(400).json({ message: "Slot is in hold" });
     }
 
     let slot;
     if (check) {
-      check.status = "booked";
+      check.status = "hold";
       slot = await check.save();
     } else {
       slot = await Slot.create({
@@ -25,7 +25,7 @@ export const createSlot = async (req, res) => {
         startTime,
         endTime,
         price,
-        status: "booked"
+        status: "hold"
       });
     }
 

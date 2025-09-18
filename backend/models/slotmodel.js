@@ -17,7 +17,7 @@ const slotSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['available', 'booked', 'cancelled'],
+    enum: ['available', 'booked', 'hold'],
     default: 'available'
   },
   price:{
