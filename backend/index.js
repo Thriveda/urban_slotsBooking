@@ -12,23 +12,33 @@ import bookingroute from "./routes/bookingroute.js"
 
 const app = express()
 dotenv.config()
-app.use(express.json());
-app.use(cors())
 
+
+app.use(cors({
+  origin: "http://localhost:5173",   
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}))
+
+
+app.options("*", cors())
+
+app.use(express.json())
+app.use(bodyParser.json())
 
 const port = process.env.PORT || 5000
 const uri = process.env.MONGO_URI
 
-async function start(){
-    try{
-        await connectdb(uri)
-        app.listen(port , ()=>{
-        console.log("Server Started")
-        })
-    } catch(err){
-        console.log("Connection failed")
-        console.log(err)
-    }
+async function start() {
+  try {
+    await connectdb(uri)
+    app.listen(port, () => {
+      console.log(" Server Started on port", port)
+    })
+  } catch (err) {
+    console.log(" Connection failed")
+    console.log(err)
+  }
 }
 start()
 
@@ -39,4 +49,3 @@ app.use("/serviceprovider", slotroute)
 app.use("/provider", slotroute)
 app.use("/slot", bookingroute)
 app.use("/viewbooking", viewbookingroute)
-
