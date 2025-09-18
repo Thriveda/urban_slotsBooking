@@ -10,49 +10,50 @@ import { connectdb } from "./config/db.js"
 import cors from "cors"
 import bookingroute from "./routes/bookingroute.js"
 
-const app = express()
 dotenv.config()
+const app = express()
 
-// ✅ Allowed origins for dev + prod
+// ✅ Allowed origins (development + production)
 const allowedOrigins = [
   "http://localhost:5173",
   "https://urban-slots-booking.vercel.app"
 ]
 
 // ✅ CORS setup
-app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like Postman, curl)
-    if (!origin) return callback(null, true)
-
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true)
-    } else {
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true) // Allow Postman, curl etc.
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true)
+      }
       return callback(new Error("Not allowed by CORS"))
-    }
-  },
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
-}))
+    },
+    credentials: true, // ✅ allow cookies/auth headers
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+  })
+)
 
-// ✅ Handle preflight requests
+// ✅ Preflight requests
 app.options("*", cors())
 
+// ✅ Middleware
 app.use(express.json())
 app.use(bodyParser.json())
 
 const port = process.env.PORT || 5000
 const uri = process.env.MONGO_URI
 
+// ✅ Start server after DB connect
 async function start() {
   try {
     await connectdb(uri)
     app.listen(port, () => {
-      console.log("✅ Server Started on port", port)
+      console.log(`✅ Server running on port ${port}`)
     })
   } catch (err) {
-    console.log("❌ Connection failed")
-    console.log(err)
+    console.error("❌ DB Connection failed", err)
   }
 }
 start()
@@ -65,3 +66,8 @@ app.use("/serviceprovider", slotroute)
 app.use("/provider", slotroute)
 app.use("/slot", bookingroute)
 app.use("/viewbooking", viewbookingroute)
+
+// ✅ Fallback route (to debug 404s)
+app.use((req, res) => {
+  res.status(404).json({ error: "Route not found" })
+})
