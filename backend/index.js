@@ -13,13 +13,16 @@ import bookingroute from "./routes/bookingroute.js"
 const app = express()
 dotenv.config()
 
+// ✅ Allowed origins for dev + prod
 const allowedOrigins = [
   "http://localhost:5173",
   "https://urban-slots-booking.vercel.app"
 ]
 
+// ✅ CORS setup
 app.use(cors({
   origin: function (origin, callback) {
+    // Allow requests with no origin (like Postman, curl)
     if (!origin) return callback(null, true)
 
     if (allowedOrigins.includes(origin)) {
@@ -32,16 +35,8 @@ app.use(cors({
   allowedHeaders: ["Content-Type", "Authorization"]
 }))
 
-
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "http://localhost:5173")
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization")
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(200) 
-  }
-  next()
-})
+// ✅ Handle preflight requests
+app.options("*", cors())
 
 app.use(express.json())
 app.use(bodyParser.json())
@@ -53,15 +48,16 @@ async function start() {
   try {
     await connectdb(uri)
     app.listen(port, () => {
-      console.log(" Server Started on port", port)
+      console.log("✅ Server Started on port", port)
     })
   } catch (err) {
-    console.log(" Connection failed")
+    console.log("❌ Connection failed")
     console.log(err)
   }
 }
 start()
 
+// ✅ Routes
 app.use("/user", registerroute)
 app.use("/user", loginroute)
 app.use("/serviceprovider", providerroute)
