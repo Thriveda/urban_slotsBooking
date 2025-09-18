@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"name": "backend",
+			"path": ".."
+		},
+		{
+			"name": "urbanSlotBooking",
+			"path": "../../../urbanSlotBooking"
+		}
+	],
+	"settings": {}
+}

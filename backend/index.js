@@ -22,8 +22,7 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin) return callback(null, true) // Allow Postman, curl etc.
-      if (allowedOrigins.includes(origin)) {
+    if (allowedOrigins.includes(origin)) {
         return callback(null, true)
       }
       return callback(new Error("Not allowed by CORS"))
@@ -34,10 +33,8 @@ app.use(
   })
 )
 
-// ✅ Preflight requests
-app.options("*", cors())
 
-// ✅ Middleware
+
 app.use(express.json())
 app.use(bodyParser.json())
 
