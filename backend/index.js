@@ -13,10 +13,23 @@ import bookingroute from "./routes/bookingroute.js"
 const app = express()
 dotenv.config()
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://urban-slots-booking.vercel.app"
+]
 
 app.use(cors({
-  origin: "http://localhost:5173",   
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true)
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true)
+    } else {
+      return callback(new Error("Not allowed by CORS"))
+    }
+  },
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 }))
 
 
