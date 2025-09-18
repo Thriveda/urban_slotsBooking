@@ -15,7 +15,6 @@ const app = express()
 
 // ✅ Allowed origins (development + production)
 const allowedOrigins = [
-  "http://localhost:5173",
   "https://urban-slots-booking.vercel.app"
 ]
 
